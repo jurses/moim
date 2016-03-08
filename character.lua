@@ -1,45 +1,46 @@
 local character = {}
-local tMatrix = require("tMatrix")
+local pipe = require("moim")
 
 function character.newCharacter(pos, dim, ai)
    local self = {}
+   local map = {}
+
    self.pos, self.dim = {}, {}
    self.indice = 0
    self.time = 0
-   self.block = {} -- para los bordes de la matriz
    self.block = {up = false, down = false, right = false, left = false}
-   self.obst = {} -- para los objetos del mapa
    self.obst = {up = false, down = false, right = false, left = false}
    self.gonnatravel = {up = false, down = false, right = false, left = false}
 
-   tilewidth, tileheight = nil
+   map.tilewidth, map.tileheight = nil
 
    self.pos = pos
    self.dim = {w = dim.w or 16, h = dim.h or 16}
 
    self.dir = ""
    self.moving = false
+   self.mtp = nil
+
+   function self:setpipes(mapPipe, layerpipe)
+      self.mtp = pipe.newlayer(mapPipe, layerpipe)
+   end
 
    function changepos(dir, tw, th, col) --self.indice no funciona con los extremos !!!
       if dir == "up" and not self.block.up and not self.obst.up then
          self.indice = self.indice - col
---       self.pos.y = self.pos.y - th
          self.pos.y = self.pos.y - 1
       end
       if dir == "down" and not self.block.down and not self.obst.down then
          self.indice = self.indice + col
---       self.pos.y = self.pos.y + th
          self.pos.y = self.pos.y + 1
       end
       if dir == "right" and not self.block.right and not self.obst.right then
          self.indice = self.indice + 1
---       self.pos.x = self.pos.x + tw
          self.pos.x = self.pos.x + 1 
       end
 
       if dir == "left" and not self.block.left and not self.obst.left then
          self.indice = self.indice - 1
---       self.pos.x = self.pos.x - tw
          self.pos.x = self.pos.x - 1
       end
       self.moving = false
@@ -47,26 +48,65 @@ function character.newCharacter(pos, dim, ai)
    end
 
    function obst(mapai, col)
-      if mapai[self.indice + 1 - col] == 1 or 3 then
-         self.obst.up = false
-      else
+      if mapai[self.indice + 1 - col] == 2 then
          self.obst.up = true
-      end
-      if mapai[self.indice] == 1 then
-         self.obst.left = false
       else
+         self.obst.up = false
+      end
+      if mapai[self.indice] == 2 then
          self.obst.left = true
-      end
-      if mapai[self.indice + 1 + col] == 1 then
-         self.obst.down = false
       else
+         self.obst.left = false
+      end
+      if mapai[self.indice + 1 + col] == 2 then
          self.obst.down = true
-      end
-      if mapai[self.indice + 2] == 1 then
-         self.obst.right = false
       else
-         self.obst.right = true
+         self.obst.down = false
       end
+      if mapai[self.indice + 2] == 2 then
+         self.obst.right = true
+      else
+         self.obst.right = false
+      end
+   end
+
+   function obst(mapai, col)
+      if mapai[self.indice + 1 - col] == 3 then
+         self.gonnatravel.up = true
+      else
+         self.gonnatravel.up = false
+      end
+      if mapai[self.indice] == 3 then
+         self.gonnatravel.left = true
+      else
+         self.gonnatravel.left = false
+      end
+      if mapai[self.indice + 1 + col] == 3 then
+         self.gonnatravel.down = true
+      else
+         self.gonnatravel.down = false
+      end
+      if mapai[self.indice + 2] == 3 then
+         self.gonnatravel.right = true
+      else
+         self.gonnatravel.right = false
+      end
+   end
+
+   function ispipe(mapai)
+      if self.gonnatravel.up == true and self.dir == "up" then
+         return true
+      end
+      if self.gonnatravel.down == true and self.dir == "down" then
+         return true
+      end
+      if self.gonnatravel.left == true and self.dir == "left" then
+         return true
+      end
+      if self.gonnatravel.right == true and self.dir == "right" then
+         return true
+      end
+      return false
    end
  
    function matrixlimit(mapai, col)
@@ -95,7 +135,7 @@ function character.newCharacter(pos, dim, ai)
    function self:move(dt, mapai, tw, th, col)
       local delay=0.1
       self.time = self.time + dt
-      tilewidth, tileheight = tw, th
+      map.tilewidth, map.tileheight = tw, th
       if self.time > delay then
          if not ai then
             if not self.moving then
@@ -118,19 +158,21 @@ function character.newCharacter(pos, dim, ai)
             else
                obst(mapai, col)
                matrixlimit(mapai, col)
-               changepos(self.dir, tw, th, col)
-               if tMatrix.iftravel({self.pos.x, self.pos.y, 1}) then
-                  self.pos.x, self.pos.y = tMatrix.travel({self.pos.x, self.pos.y, 1})
-                  self.pos.y = self.pos.y + 1
-                  self.indice = (self.pos.x - 1) * col + (self.pos.y - 1)
+               --ispipe funciona mal
+               if ispipe(mapai) then
+                  print("estoy funcionando"..self.indice..","..self.pos.x..","..self.pos.y)
+                  self.pos.x, self.pos.y = self.mtp:topipe(self.indice)
                end
+               changepos(self.dir, tw, th, col)
             end
          end
       end
    end
 
    function self:drawCharacter()
-      love.graphics.rectangle("fill", self.pos.x*tilewidth, self.pos.y*tileheight, self.dim.w, self.dim.h)
+      love.graphics.setColor(255,100,100,255)
+      love.graphics.rectangle("fill", self.pos.x*map.tilewidth, self.pos.y*map.tileheight, self.dim.w, self.dim.h)
+      love.graphics.setColor(255,255,255)
       love.graphics.print(self.pos.x..","..self.pos.y..";"..self.indice, love.graphics.getWidth()/2, love.graphics.getHeight() - 200)
    end
    return self
