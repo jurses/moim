@@ -4,7 +4,6 @@ function moim.newlayer(mapa, layer)
    local self = {}
 
    if mapa.layers[layer].type == "tilelayer" then
-      print(layer)
       local quad = {} --[a][b] a=pagina de tiles
                         -- b=nº de tile
       self.indet = 0 -- the index to the tilesets a
@@ -65,30 +64,33 @@ function moim.newlayer(mapa, layer)
          end
       end
    elseif mapa.layers[layer].type == "objectgroup" then
-      function self:topipe(indice)
+       self.aux_k = nil
+
+       function self:isOnPipe(indice)
          local i,j
 
          if indice == 0 then
             i=0 j=0
-         elseif indice < mapa.width and indice > 0 then
-            i=0 j=indice
-         else
-            i = mapa.height % indice
-            j = mapa.width % indice 
-         end
-         
-         --No devuelve lo que debería
-         for k=1, #mapa.layers[layer].objects do
-            if mapa.layers[layer].objects[k].properties.tpx == j * mapa.tilewidth and
-               mapa.layers[layer].objects[k].properties.tpy == i * mapa.tileheight then
-               print("hola")
-               print(self.mtp:topipe(self.indice))
-               return   mapa.layers[layer].objects[k].properties.tpx,
-                        mapa.layers[layer].objects[k].properties.tpy,
-                        mapa.layers[layer].objects[k].propertoes.map
+        else
+            j=(indice+1) % (mapa.width) - 1
+            i=math.floor(indice/mapa.width)
+          end
+
+        for k=1, #mapa.layers[layer].objects do
+            if mapa.layers[layer].objects[k].x == j * mapa.tilewidth and
+               mapa.layers[layer].objects[k].y == i * mapa.tileheight then
+               self.aux_k = k
+               return  true 
             end
          end
-         return nil
+
+         return false
+        end
+
+      function self:topipe()
+          return    mapa.layers[layer].objects[self.aux_k].properties.tpx,
+                    mapa.layers[layer].objects[self.aux_k].properties.tpy,
+                    mapa.layers[layer].objects[self.aux_k].properties.map
       end
    end
    return self

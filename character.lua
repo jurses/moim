@@ -93,22 +93,6 @@ function character.newCharacter(pos, dim, ai)
       end
    end
 
-   function ispipe(mapai)
-      if self.gonnatravel.up == true and self.dir == "up" then
-         return true
-      end
-      if self.gonnatravel.down == true and self.dir == "down" then
-         return true
-      end
-      if self.gonnatravel.left == true and self.dir == "left" then
-         return true
-      end
-      if self.gonnatravel.right == true and self.dir == "right" then
-         return true
-      end
-      return false
-   end
- 
    function matrixlimit(mapai, col)
       if self.indice + 1 - col <= 0 then
          self.block.up = true
@@ -158,12 +142,11 @@ function character.newCharacter(pos, dim, ai)
             else
                obst(mapai, col)
                matrixlimit(mapai, col)
-               --ispipe funciona mal
-               if ispipe(mapai) then
-                  print("estoy funcionando"..self.indice..","..self.pos.x..","..self.pos.y)
-                  self.pos.x, self.pos.y = self.mtp:topipe(self.indice)
-               end
+
                changepos(self.dir, tw, th, col)
+               if self.mtp:isOnPipe(self.indice) then
+                   self.pos.x, self.pos.y = self.mtp:topipe()
+                end
             end
          end
       end
