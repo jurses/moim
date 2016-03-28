@@ -21,7 +21,7 @@ function character.newCharacter(pos, dim, ai)
    self.moving = false
    self.mtp = nil
    
-   function self:refreshPos(j,i,col)
+   function refreshPos(j,i,col)
       self.indice = i*col + j
    end
 
@@ -71,29 +71,6 @@ function character.newCharacter(pos, dim, ai)
          self.obst.right = true
       else
          self.obst.right = false
-      end
-   end
-
-   function obst(mapai, col)
-      if mapai[self.indice + 1 - col] == 3 then
-         self.gonnatravel.up = true
-      else
-         self.gonnatravel.up = false
-      end
-      if mapai[self.indice] == 3 then
-         self.gonnatravel.left = true
-      else
-         self.gonnatravel.left = false
-      end
-      if mapai[self.indice + 1 + col] == 3 then
-         self.gonnatravel.down = true
-      else
-         self.gonnatravel.down = false
-      end
-      if mapai[self.indice + 2] == 3 then
-         self.gonnatravel.right = true
-      else
-         self.gonnatravel.right = false
       end
    end
 
@@ -150,7 +127,7 @@ function character.newCharacter(pos, dim, ai)
                changepos(self.dir, tw, th, col)
                if self.mtp:isOnPipe(self.indice) then
                    self.pos.x, self.pos.y = self.mtp:topipe()
-                   self.refreshPos(self.pos.x, self.pos.y, col)
+                   refreshPos(self.pos.x, self.pos.y, col)
                 end
             end
          end
