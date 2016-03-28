@@ -20,6 +20,10 @@ function character.newCharacter(pos, dim, ai)
    self.dir = ""
    self.moving = false
    self.mtp = nil
+   
+   function self:refreshPos(j,i,col)
+      self.indice = i*col + j
+   end
 
    function self:setpipes(mapPipe, layerpipe)
       self.mtp = pipe.newlayer(mapPipe, layerpipe)
@@ -146,6 +150,7 @@ function character.newCharacter(pos, dim, ai)
                changepos(self.dir, tw, th, col)
                if self.mtp:isOnPipe(self.indice) then
                    self.pos.x, self.pos.y = self.mtp:topipe()
+                   self.refreshPos(self.pos.x, self.pos.y, col)
                 end
             end
          end
