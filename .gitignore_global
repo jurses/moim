@@ -1,1 +1,8 @@
 *.swp
+*.tmx
+OFL.txt
+*.ttf
+OTF/
+Sources/
+*.zip
+Webfonts/

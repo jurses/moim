@@ -1,41 +1,42 @@
 local moim = {}
 
 function moim.newlayer(mapa, layer)
-   local self = {}
+   local priv = {}
+   local publ = {}
 
    if mapa.layers[layer].type == "tilelayer" then
       local quad = {} --[a][b] a=pagina de tiles
                         -- b=nº de tile
-      self.indet = 0 -- the index to the tilesets a
-      self.tilecount = {}
-      self.matrixaux = {}
+      priv.indet = 0 -- the index to the tilesets a
+      priv.tilecount = {}
+      priv.matrixaux = {}
 
       for i=1, #mapa.tilesets do
          quad[i] = {}
       end
       
-      function self:showlayer(x,y)
+      function publ:showlayer(x,y)
          x = x or 0
          y = y or 0
-         love.graphics.draw(self.mapaBatch,x,y)
+         love.graphics.draw(priv.mapaBatch,x,y)
       end
 
-      function self:getmap()
-         return self.matrixaux, mapa.tilesets[self.indet].tilewidth, mapa.tilesets[self.indet].tileheight, mapa.width 
+      function publ:getmap()
+         return priv.matrixaux, mapa.tilesets[priv.indet].tilewidth, mapa.tilesets[priv.indet].tileheight, mapa.width 
       end
 
-      function self:getntiles()
-         return #quad[self.indet]
+      function publ:getntiles()
+         return #quad[priv.indet]
       end
 
-      function self:readlayer()
+      function publ:readlayer()
          local x,y
 
          for i,v in ipairs(mapa.layers[layer].data) do
-            if self.indet > 1 then
-               v = v - mapa.tilesets[self.indet].firstgid + 1 
+            if priv.indet > 1 then
+               v = v - mapa.tilesets[priv.indet].firstgid + 1 
             end
-            self.matrixaux[i] = v
+            priv.matrixaux[i] = v
             if (i%mapa.layers[layer].width) == 0 then
                   x=mapa.layers[layer].width
                   y=i/mapa.layers[layer].width
@@ -45,28 +46,28 @@ function moim.newlayer(mapa, layer)
             end
 
             if v ~= 0 then
-               self.mapaBatch:add(quad[self.indet][v], (x-1)*mapa.tilesets[self.indet].tilewidth, (y-1)*mapa.tilesets[self.indet].tileheight)
+               priv.mapaBatch:add(quad[priv.indet][v], (x-1)*mapa.tilesets[priv.indet].tilewidth, (y-1)*mapa.tilesets[priv.indet].tileheight)
             end
          end
       end
 
-      function self:newTileset(newTileset, indet)
-         self.indet = indet
+      function publ:newTileset(newTileset, indet)
+         priv.indet = indet
 
-         local hm = mapa.tilesets[self.indet].imageheight/mapa.tilesets[self.indet].tileheight 
-         local hw = mapa.tilesets[self.indet].imagewidth/mapa.tilesets[self.indet].tilewidth 
-         self.mapaBatch = love.graphics.newSpriteBatch(newTileset,mapa.width*mapa.height) --crea el mapabatch
+         local hm = mapa.tilesets[priv.indet].imageheight/mapa.tilesets[priv.indet].tileheight 
+         local hw = mapa.tilesets[priv.indet].imagewidth/mapa.tilesets[priv.indet].tilewidth 
+         priv.mapaBatch = love.graphics.newSpriteBatch(newTileset,mapa.width*mapa.height) --crea el mapabatch
          for i=1, hm do
             for j=1, hw do
-               index = (i-1)*(mapa.tilesets[self.indet].imagewidth/mapa.tilesets[self.indet].tilewidth) + j
-               quad[self.indet][index]=love.graphics.newQuad((j-1)*mapa.tilesets[self.indet].tileheight, (i-1)*mapa.tilesets[self.indet].tilewidth, mapa.tilesets[self.indet].tilewidth, mapa.tilesets[self.indet].tileheight, mapa.tilesets[self.indet].imagewidth, mapa.tilesets[self.indet].imageheight)
+               index = (i-1)*(mapa.tilesets[priv.indet].imagewidth/mapa.tilesets[priv.indet].tilewidth) + j
+               quad[priv.indet][index]=love.graphics.newQuad((j-1)*mapa.tilesets[priv.indet].tileheight, (i-1)*mapa.tilesets[priv.indet].tilewidth, mapa.tilesets[priv.indet].tilewidth, mapa.tilesets[priv.indet].tileheight, mapa.tilesets[priv.indet].imagewidth, mapa.tilesets[priv.indet].imageheight)
             end
          end
       end
    elseif mapa.layers[layer].type == "objectgroup" then
-       self.aux_k = nil
+       priv.aux_k = nil
 
-       function self:isOnPipe(indice)
+       function publ:isOnPipe(indice)
          local i,j
 
          if indice == 0 then
@@ -79,7 +80,7 @@ function moim.newlayer(mapa, layer)
         for k=1, #mapa.layers[layer].objects do
             if mapa.layers[layer].objects[k].x == j * mapa.tilewidth and
                mapa.layers[layer].objects[k].y == i * mapa.tileheight then
-               self.aux_k = k
+               priv.aux_k = k
                return  true 
             end
          end
@@ -87,13 +88,13 @@ function moim.newlayer(mapa, layer)
          return false
         end
 
-      function self:topipe()
-          return    mapa.layers[layer].objects[self.aux_k].properties.tpx,
-                    mapa.layers[layer].objects[self.aux_k].properties.tpy,
-                    mapa.layers[layer].objects[self.aux_k].properties.map
+      function publ:topipe()
+          return    mapa.layers[layer].objects[priv.aux_k].properties.tpx,
+                    mapa.layers[layer].objects[priv.aux_k].properties.tpy,
+                    mapa.layers[layer].objects[priv.aux_k].properties.map
       end
    end
-   return self
+   return priv
 end
 
 return moim
