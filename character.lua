@@ -141,7 +141,7 @@ function character.newCharacter(pos, dim, ai)
       love.graphics.setColor(255,255,255)
       love.graphics.print(priv.pos.x..","..priv.pos.y..";"..priv.indice, love.graphics.getWidth()/2, love.graphics.getHeight() - 200)
    end
-   return priv
+   return publ
 end
 
 return character

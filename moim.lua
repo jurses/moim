@@ -94,7 +94,7 @@ function moim.newlayer(mapa, layer)
                     mapa.layers[layer].objects[priv.aux_k].properties.map
       end
    end
-   return priv
+   return publ
 end
 
 return moim
