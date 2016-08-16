@@ -1,5 +1,5 @@
 local character = {}
-local pipe = require("moim")
+local pipe = require("../mapa/moim")
 
 function character.newCharacter(pos, dim, ai)
    local priv = {}
@@ -21,7 +21,7 @@ function character.newCharacter(pos, dim, ai)
    priv.dir = ""
    priv.moving = false
    priv.mtp = nil
-   
+
    function refreshPos(j,i,col)
       priv.indice = i*col + j
    end
@@ -41,7 +41,7 @@ function character.newCharacter(pos, dim, ai)
       end
       if dir == "right" and not priv.block.right and not priv.obst.right then
          priv.indice = priv.indice + 1
-         priv.pos.x = priv.pos.x + 1 
+         priv.pos.x = priv.pos.x + 1
       end
 
       if dir == "left" and not priv.block.left and not priv.obst.left then
@@ -86,7 +86,7 @@ function character.newCharacter(pos, dim, ai)
       else
          priv.block.down = false
       end
-      if (priv.indice+1)%col == 1 or priv.indice == 0 then --izquierdo 
+      if (priv.indice+1)%col == 1 or priv.indice == 0 then --izquierdo
          priv.block.left = true
       else
          priv.block.left = false
